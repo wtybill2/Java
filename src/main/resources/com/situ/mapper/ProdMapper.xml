@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.situ.mapper.ProdMapper">
+
+	<!-- Result Map 映射关系-->
+	<resultMap id="BaseResultMap" type="com.situ.model.productModel">
+		<result column="id" property="id" />
+		<result column="code" property="code" />
+		<result column="name" property="name" />
+		<result column="cost" property="cost" />
+		<result column="sum" property="sum" />
+		<result column="state" property="state" />
+		<result column="product_type" property="product_type" />
+		<result column="product_code" property="code" />
+		<result column="product_typeName" property="product_typeName" />
+		<result column="url" property="url" />
+		<result column="type" property="type" />
+	</resultMap>
+
+	<!-- table all fields   sql片段 -->
+	<sql id="Base_Column_List">
+		id, code, name, cost, sum, state, product_type
+	</sql>
+
+	<!-- 查询条件 -->
+	<sql id="Example_Where_Clause">
+		where 1=1
+			<if test="id != null">
+				and id like #{id}
+			</if>
+			<if test="code != null and code != ''">
+				and code like #{code}
+			</if>
+			<if test="name != null and name != ''">
+				and name like #{name}
+			</if>
+			<if test="cost != null and cost != ''">
+				and cost = #{cost}
+			</if>
+			
+			<if test="sum != null and sum != ''">
+				and sum = #{sum}
+			</if>
+			<if test="state != null and state != ''">
+				and state like #{state}
+			</if>
+			<if test="product_type != null and product_type != ''">
+				and product_type like #{product_type}
+			</if>
+	</sql>
+
+	<!-- 插入记录 -->
+	<!--selectKey  会将 SELECT LAST_INSERT_ID()的结果放入到传入的model的主键里面，  
+        keyProperty 对应的model中的主键的属性名，这里是 user 中的id，因为它跟数据库的主键对应  
+        order AFTER 表示 SELECT LAST_INSERT_ID() 在insert执行之后执行,多用与自增主键，  
+              BEFORE 表示 SELECT LAST_INSERT_ID() 在insert执行之前执行，这样的话就拿不到主键了，  
+                    这种适合那种主键不是自增的类型  
+        resultType 主键类型 -->  
+	<insert id="insert" parameterType="Object">
+		<selectKey resultType="java.lang.Integer" order="AFTER" keyProperty="id">
+			SELECT LAST_INSERT_ID()
+		</selectKey>
+		insert into shopping.pro_info(code, name, cost,  sum, state, product_type)
+		values(#{code}, #{name}, #{cost}, #{sum}, #{state}, #{product_type})
+	</insert>
+	<insert id="insertmodel" parameterType="Object">
+	insert into shopping.pro_pic(product_code,url,type)values(#{code},#{url},#{type})
+	</insert>
+	<!-- 删除记录 -->
+	<delete id="delete" parameterType="Object">
+		delete from shopping.pro_info where code = #{id}
+	</delete>
+	<delete id="deleteAll" parameterType="Object">
+		delete from shopping.pro_info where code = #{id}
+	</delete>
+	<delete id="deleteModel" parameterType="Object">
+		delete from shopping.pro_pic where product_code = #{id}
+		<!-- <include refid="Example_Where_Clause" /> -->
+
+	</delete>
+	<!-- 根据，修改记录 -->
+	<update id="update" parameterType="Object">
+		update shopping.pro_pic set
+		type=#{type}
+		where id = #{id}
+	</update>
+
+	<!-- 修改记录，只修改只不为空的字段 -->
+	<update id="updateActive" parameterType="Object">
+		update shopping.pro_info set
+		<trim suffixOverrides=",">
+			<if test="name != null and name != '' ">
+				name = #{name},
+			</if>
+			<if test="cost != null and cost != '' ">
+				cost = #{cost},
+			</if>
+			
+			<if test="sum != null and sum != '' ">
+				sum = #{sum},
+			</if>
+			<if test="state != null and state != '' ">
+				state = #{state},
+			</if>
+			<if test="product_type != null and product_type != '' ">
+				product_type = #{product_type},
+			</if>
+		</trim>
+		where code = #{code}
+	</update>
+
+	<!-- 根据查询 系统用户 -->
+	<select id="select" resultMap="BaseResultMap" parameterType="Object">
+		select id,code,name,cost,sum,state,product_type,(select name from shopping.product where code=product_type)product_typeName,(select parentcode from shopping.product where code=product_type)product_type1,
+		(select url from shopping.pro_pic where product_code=code and type='1')url
+		from shopping.pro_info where code = #{code} 
+	</select>
+
+	<!-- 系统用户 列表总数 -->
+	<select id="selectCount" resultType="java.lang.Integer" parameterType="Object">
+		select count(1) from shopping.pro_info
+		<include refid="Example_Where_Clause" />
+	</select>
+
+	<!-- 查询系统用户列表 -->
+	<select id="selectModel" resultMap="BaseResultMap" parameterType="Object">
+		select id,code,name,cost,sum,state,product_type,(select name from shopping.product where code=product_type)product_typeName,(select parentcode from shopping.product where code=product_type)product_type1
+		,(select url from shopping.pro_pic where product_code=code and type='1')url from shopping.pro_info
+		<include refid="Example_Where_Clause" />
+		limit ${rowStart},${pageLimit}
+<!-- 		<if test="pager.orderCondition != null and pager.orderCondition != ''"> -->
+<!-- 			${pager.orderCondition} -->
+<!-- 		</if> -->
+<!-- 		<if test="pager.mysqlQueryCondition != null and pager.mysqlQueryCondition != ''"> -->
+<!-- 			${pager.mysqlQueryCondition} -->
+<!-- 		</if> -->
+	</select>
+	
+	<!-- 查询系统用户列表 -->
+	<select id="selectAll" resultMap="BaseResultMap" parameterType="Object">
+		select *
+		from shopping.pro_pic
+		where 1=1 and product_code like #{code}
+		<!-- <include refid="Example_Where_Clause" /> -->
+<!-- 		<if test="pager.orderCondition != null and pager.orderCondition != ''"> -->
+<!-- 			${pager.orderCondition} -->
+<!-- 		</if> -->
+	</select>
+
+</mapper>   

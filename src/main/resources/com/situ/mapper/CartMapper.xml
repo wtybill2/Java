@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.situ.mapper.CartMapper">
+
+	<!-- Result Map 映射关系 -->
+	<resultMap id="BaseResultMap" type="com.situ.model.cartModel">
+		<result column="id" property="id" />
+		<result column="user_id" property="user_id" />
+		<result column="product_id" property="product_id" />
+		<result column="amount" property="amount" />
+		<result column="ischecked" property="ischecked" />
+		<result column="name" property="name" />
+		<result column="cost" property="cost" />
+		<result column="url" property="url" />
+		
+	</resultMap>
+
+	<!-- table all fields sql片段 -->
+	<sql id="Base_Column_List">
+		id, user_id, product_id, amount,ischecked
+	</sql>
+
+	<!-- 查询条件 -->
+	<sql id="Example_Where_Clause">
+		where 1=1
+		<if test="user_id != null and user_id!= ''">
+			and user_id = #{user_id}
+		</if>
+		<if test="product_id != null and product_id != ''">
+			and product_id = #{product_id}
+		</if>
+		<if test="amount != null and amount != ''">
+			and amount = #{amount}
+		</if>
+		<if test="ischecked != null and ischecked != ''">
+			and ischecked = #{ischecked}
+		</if>
+		
+	</sql>
+
+	<!-- 插入记录 -->
+	<!--selectKey 会将 SELECT LAST_INSERT_ID()的结果放入到传入的model的主键里面， keyProperty 
+		对应的model中的主键的属性名，这里是 user 中的id，因为它跟数据库的主键对应 order AFTER 表示 SELECT LAST_INSERT_ID() 
+		在insert执行之后执行,多用与自增主键， BEFORE 表示 SELECT LAST_INSERT_ID() 在insert执行之前执行，这样的话就拿不到主键了， 
+		这种适合那种主键不是自增的类型 resultType 主键类型 -->
+	<insert id="insert" parameterType="Object">
+		<selectKey resultType="java.lang.Integer" order="AFTER"
+			keyProperty="id">
+			SELECT LAST_INSERT_ID()
+		</selectKey>
+		insert into shopping.cart(user_id, product_id, amount,ischecked)
+		values(#{user_id}, #{product_id}, #{amount},#{ischecked})
+	</insert>
+
+	<!-- 删除记录 -->
+	<delete id="delete" parameterType="Object">
+		delete from shopping.cart
+		where id = #{id}
+	</delete>
+
+	<delete id="deleteModel" parameterType="Object">
+		delete from shopping.cart
+		<include refid="Example_Where_Clause" />
+	</delete>
+
+	<!-- 根据，修改记录 -->
+	<update id="update" parameterType="Object">
+		update shopping.cart set
+		amount=#{amount}
+		where id =
+		#{id}
+	</update>
+
+	<!-- 修改记录，只修改只不为空的字段 -->
+	<update id="updateActive" parameterType="Object">
+		update shopping.cart set
+		<trim suffixOverrides=",">
+			<if test="ischecked != null and ischecked != '' ">
+				ischecked = #{ischecked},
+			</if>
+			<if test="amount != null and amount != '' ">
+				amount = #{amount},
+			</if>
+			
+		</trim>
+		where id = #{id}
+	</update>
+
+	<!-- 根据查询 系统用户 -->
+	<select id="select" resultMap="BaseResultMap"
+		parameterType="Object">
+		select
+		<include refid="Base_Column_List" />
+		from shopping.cart where code = #{code}
+	</select>
+
+	<!-- 系统用户 列表总数 -->
+	<select id="selectCount" resultType="java.lang.Integer"
+		parameterType="Object">
+		select count(1) from shopping.cart
+		<include refid="Example_Where_Clause" />
+	</select>
+
+	<!-- 查询系统用户列表 -->
+	<select id="selectModel" resultMap="BaseResultMap"
+		parameterType="Object">
+		select
+		id,user_id,product_id,amount,ischecked,(select url from shopping.pro_pic where product_code=product_id and type='1' )url,(select name from shopping.pro_info where code=product_id)name,(select cost from shopping.pro_info where code=product_id)cost
+		 from shopping.cart 
+		where user_id = #{id}
+		
+		<!-- <if test="pager.orderCondition != null and pager.orderCondition != 
+			''"> -->
+		<!-- ${pager.orderCondition} -->
+		<!-- </if> -->
+		<!-- <if test="pager.mysqlQueryCondition != null and pager.mysqlQueryCondition 
+			!= ''"> -->
+		<!-- ${pager.mysqlQueryCondition} -->
+		<!-- </if> -->
+	</select>
+
+	<!-- 查询系统用户列表 -->
+	<select id="selectAll" resultMap="BaseResultMap"
+		parameterType="Object">
+		select
+		id,user_id,product_id,amount,ischecked,(select url from shopping.pro_pic where product_code=product_id and type='1' )url,(select name from shopping.pro_info where code=product_id)name,(select cost from shopping.pro_info where code=product_id)cost
+		from shopping.cart
+		<include refid="Example_Where_Clause" />
+		<!-- <if test="pager.orderCondition != null and pager.orderCondition != 
+			''"> -->
+		<!-- ${pager.orderCondition} -->
+		<!-- </if> -->
+	</select>
+	<select id="selectTop" resultMap="BaseResultMap"
+		parameterType="Object">
+		select * from shopping.product where parentcode='type1'
+	</select>
+	<select id="selectsecond" resultMap="BaseResultMap"
+		parameterType="Object">
+
+		select * from shopping.cart
+
+		where parentcode not in('type1') and parentcode is not null and parentcode not in('')
+		 
+
+	</select>
+</mapper>   

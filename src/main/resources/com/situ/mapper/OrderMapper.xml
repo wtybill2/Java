@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.situ.mapper.OrderMapper">
+
+	<!-- Result Map 映射关系 -->
+	<resultMap id="BaseResultMap" type="com.situ.model.OrderModel">
+		<result column="id" property="id" />
+		<result column="code" property="code" />
+		<result column="user" property="user" />
+		<result column="addr" property="addr" />
+		<result column="status" property="status" />
+		<result column="pro_code" property="pro_code" />
+		<result column="price" property="price" />
+		<result column="amount" property="amount" />
+		<result column="pro_code" property="pro_code" />
+		<result column="order_code" property="order_code" />
+		<result column="url" property="url" />
+		<result column="time" property="time" />
+		<result column="pricesum" property="pricesum" />
+	</resultMap>
+
+	<!-- table all fields sql片段 -->
+	<sql id="Base_Column_List">
+		id, code, user, addr,time,status,pricesum
+	</sql>
+
+	<!-- 查询条件 -->
+	<sql id="Example_Where_Clause">
+		where 1=1
+		<if test="id != null">
+			and id = #{id}
+		</if>
+		<if test="code != null and code != ''">
+			and code like #{code}
+		</if>
+		<if test="user != null and user != ''">
+			and user = #{user}
+		</if>
+		<if test="addr != null and addr != ''">
+			and addr = #{addr}
+		</if>
+		<if test="time != null and time != ''">
+			and time = #{time}
+		</if>
+		<if test="status != null and status != ''">
+			and status = #{status}
+		</if>
+		<if test="pricesum != null and pricesum != ''">
+			and pricesum = #{pricesum}
+		</if>
+		
+	</sql>
+
+	<!-- 插入记录 -->
+	<!--selectKey 会将 SELECT LAST_INSERT_ID()的结果放入到传入的model的主键里面， keyProperty 
+		对应的model中的主键的属性名，这里是 user 中的id，因为它跟数据库的主键对应 order AFTER 表示 SELECT LAST_INSERT_ID() 
+		在insert执行之后执行,多用与自增主键， BEFORE 表示 SELECT LAST_INSERT_ID() 在insert执行之前执行，这样的话就拿不到主键了， 
+		这种适合那种主键不是自增的类型 resultType 主键类型 -->
+	<insert id="insert" parameterType="Object">
+		<selectKey resultType="java.lang.Integer" order="AFTER"
+			keyProperty="id">
+			SELECT LAST_INSERT_ID()
+		</selectKey>
+		insert into shopping.order( code, user, addr,status,time,pricesum)
+		values(#{code}, #{user}, #{addr},#{status},#{time},#{pricesum})
+	</insert>
+	<insert id="insertmodel" parameterType="Object">
+	insert into shopping.order_product( pro_code, order_code, amount,price)
+		values(#{pro_code}, #{order_code}, #{amount},#{price})
+	</insert>
+	
+	<!-- 删除记录 -->
+	<delete id="delete" parameterType="Object">
+		delete from shopping.order_product 
+		where id = #{id}
+	</delete>
+	
+    <delete id="deletedao" parameterType="Object">
+		delete from shopping.order
+		where code = #{code}
+	</delete>
+	
+	<delete id="deleteModel" parameterType="Object">
+		delete from shopping.order_product 
+		where 
+		<if test="id != null">
+			id = #{id}
+		</if>
+		
+	</delete>
+
+	<!-- 根据，修改记录 -->
+	<update id="update" parameterType="Object">
+		update shopping.order set
+		name = #{name}, parentcode = #{parentcode},note=#{note}
+		where code =
+		#{code}
+	</update>
+
+	<!-- 修改记录，只修改只不为空的字段 -->
+	<update id="updateActive" parameterType="Object">
+		update shopping.order set
+		<trim suffixOverrides=",">
+			<if test="name != null and name != '' ">
+				name = #{name},
+			</if>
+			<if test="parentcode != null and parentcode != '' ">
+				parentcode = #{parentcode},
+			</if>
+			<if test="time != null and time != '' ">
+				time = #{time},
+			</if>
+			
+
+		</trim>
+		where code = #{code}
+	</update>
+
+	<!-- 根据查询 系统用户 -->
+	<select id="select" resultMap="BaseResultMap"
+		parameterType="Object">
+		select id,pro_code,order_code,amount, price
+		from shopping.order_product where pro_code=#{pro_code}
+	</select>
+
+	<!-- 系统用户 列表总数 -->
+	<select id="selectCount" resultType="java.lang.Integer"
+		parameterType="Object">
+		select count(1) from shopping.order
+		<include refid="Example_Where_Clause" />
+	</select>
+
+	<!-- 查询订单总数 -->
+	<select id="selectdel" resultMap="BaseResultMap"
+		parameterType="Object">
+		select
+		<include refid="Base_Column_List" />
+		from shopping.order
+		<include refid="Example_Where_Clause" />
+		<if test="orderby != null and orderby != '' ">
+		order by ${orderby}
+			</if>
+	</select>
+	
+	
+	<!-- 查询订单总数 开启分页-->
+	<select id="selectModel" resultMap="BaseResultMap"
+		parameterType="Object">
+		select
+		<include refid="Base_Column_List" />
+		from shopping.order
+		<include refid="Example_Where_Clause" />
+		limit ${rowStart},${pageLimit}
+		<!-- <if test="pager.orderCondition != null and pager.orderCondition != 
+			''"> -->
+		<!-- ${pager.orderCondition} -->
+		<!-- </if> -->
+		<!-- <if test="pager.mysqlQueryCondition != null and pager.mysqlQueryCondition 
+			!= ''"> -->
+		<!-- ${pager.mysqlQueryCondition} -->
+		<!-- </if> -->
+	</select>
+
+	<!-- 查询订单相关的所有信息 -->
+	<select id="selectAll" resultMap="BaseResultMap"
+		parameterType="Object">
+		select id,pro_code,order_code,amount, price,(select url from shopping.pro_pic where product_code=pro_code and type='1')url
+		from shopping.order_product where order_code=#{pro_code}
+		
+		<!-- <if test="pager.orderCondition != null and pager.orderCondition != 
+			''"> -->
+		<!-- ${pager.orderCondition} -->
+		<!-- </if> -->
+	</select>
+	
+	<select id="selectDao" resultMap="BaseResultMap"
+		parameterType="Object">
+		select id,pro_code,order_code,amount, price,(select url from shopping.pro_pic where product_code=pro_code and type='1')url
+		from shopping.order_product  
+		<include refid="Example_Where_Clause" />
+		
+		<!-- <if test="pager.orderCondition != null and pager.orderCondition != 
+			''"> -->
+		<!-- ${pager.orderCondition} -->
+		<!-- </if> -->
+	</select>
+</mapper>   

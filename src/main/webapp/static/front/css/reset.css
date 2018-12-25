@@ -1,0 +1,95 @@
+/* 把标签默认的间距设为0 */
+body,ul,ol,p,h1,h2,h3,h4,h5,h6,dl,dd,select,input,textarea,form{margin:0;padding:0}
+
+/* 让h标签文字大小继承body的文字设置 */
+h1,h2,h3,h4,h5,h6{font-size:100%;font-weight:normal;}
+
+/* 去掉列表默认的图标 */
+ul,ol{list-style:none;}
+
+/* 去掉em默认的斜体 */
+em{font-style: normal;}
+
+/* 去掉a标签默认的下划线 */
+a{text-decoration:none;}
+
+
+/* 去掉加链接时产生的框线 */
+img{border:0;}
+
+/* 清除浮动 */
+.clearfix:before,.clearfix:after{content:"";display:table}
+.clearfix:after{clear:both;}
+.clearfix{zoom:1}
+
+/* 浮动 */
+.fl{float:left}
+.fr{float:right}
+
+/* 优购的设置复制过来 */
+/*----------------------top---------------------------------*/
+	
+	.bg_color {
+		border-bottom: 1px solid #ccc;
+	}
+	
+	.top_center {
+		width: 1100px;
+		margin: auto;
+	}
+	
+	.top_center .wel {
+		line-height: 28px;
+		color: #808080;
+	}
+	
+	.top_center .left {
+		float: left;
+	}
+	
+	.top_center .right {
+		float: right;
+	}
+	
+	.top_center a {
+		color: #808080;
+		line-height: 28px;
+	}
+
+	.top_center li {
+		float: left;
+		margin-left: 20px;
+		margin-right: 30px;
+	}
+	
+	.top_center .login {
+		background-image: url(../img/zhanghu2.png);
+		background-repeat: no-repeat;
+		padding-left: 17px;
+		background-position: 2% center;
+	}
+	
+	.top_center .collect {
+		background-image: url(../img/xin.png);
+		background-repeat: no-repeat;
+		padding-left: 17px;
+		background-position: 2% center;
+	}
+	
+	.top_center .indent {
+		background-image: url(../img/narrow-down.png);
+		background-repeat: no-repeat;
+		padding-right: 10px;
+		background-position: right center;
+	}
+	
+	.top_center .phone {
+		background-image: url(../img/phone.png);
+		background-repeat: no-repeat;
+		padding-left: 17px;
+		background-position: 2% center;
+	}
+	
+	a {
+		text-decoration: none;
+	}
